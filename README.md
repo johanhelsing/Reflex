@@ -126,7 +126,7 @@ public class Greeter : IStartable // IStartable will force it to be constructed 
     }
 }
 ```
-12. Inside Greet scene, create a new empty gameobject named `SceneScope` and attach `SceneScope` component
+12. Inside `Greet` scene, create a new empty gameobject named `SceneScope` and attach `SceneScope` component
 13. Create `GreetInstaller.cs` with
 ```csharp
 using Reflex.Core;
@@ -176,25 +176,25 @@ Container scoping refers to the ability of being able to create a container inhe
 It is root scope.
 It is created just before first scene opens by relying on `[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]`
 To register bindings to it, create a prefab, name it "ProjectScope", put it inside any Resources folder, and attach a "ProjectScope" component to it.
-Then, create your installer as MonoBehaviour and implement IInstaller interface.
-Remember to attach your installer to the ProjectScope prefab, as ProjectScope searches for every child implementing IInstaller when its time to create the ProjectScope container.
-Theres a menu item to ease the process: Assets > Create > Reflex > ProjectScope
+Then, create your installer as MonoBehaviour and implement the `IInstaller` interface.
+Remember to attach your installer to the ProjectScope prefab, as ProjectScope searches for every child implementing `IInstaller` when its time to create the ProjectScope container.
+There's a menu item to ease the process: Assets > Create > Reflex > ProjectScope
 Remember to have a single ProjectScope to avoid undesired behaviour.
-Note that ProjectScope prefab is not required, in case Reflex do not found ProjectScope, an empty root will be created.
-ProjectScope instance will be disposed once app closes/app quits.
-> Note that unity does not call OnDestroy deterministically, so rule of thum is do not rely on injected dependencies on OnDestroy event functions.
+Note that ProjectScope prefab is not required, in case Reflex doesn't find a ProjectScope, an empty root will be created.
+The ProjectScope instance will be disposed once app closes/app quits.
+> Note that unity does not call OnDestroy deterministically, so the rule of thumb is to not rely on injected dependencies on `OnDestroy` event functions.
 
 ### Scene Scope
 It is scoped from ProjectScope, so it contains everything that ProjectScope do.
 It is created and injected after Awake, and before Start. 
 To register bindings to it, create a gameobject on desired scene, name it "SceneScope", put it as root game object, and attach a "SceneScope" component to it.
-Then, create your installer as MonoBehaviour and implement IInstaller interface.
-Remember to attach your installer to your SceneScope gameobject, as SceneScope searches for every child implementing IInstaller when its time to create the SceneScope container.
-Theres a menu item to ease the process: GameObject > Reflex > Scene Context
+Then, create your installer as MonoBehaviour and implement the `IInstaller` interface.
+Remember to attach your installer to your SceneScope gameobject, as SceneScope searches for every child implementing `IInstaller` when it's time to create the SceneScope container.
+There's a menu item to ease the process: GameObject > Reflex > Scene Context
 Remember to have a single SceneScope to avoid undesired behaviour.
-Note that SceneScope gameobject is not required, in case Reflex do not found SceneScope, an empty one will be created.
-SceneScope instance will be disposed once scene is unloaded.
-> Note that unity does not call OnDestroy deterministically, so rule of thum is do not rely on injected dependencies on OnDestroy event functions. 
+Note that SceneScope gameobject is not required, in case Reflex doesn't find a SceneScope, an empty one will be created.
+The SceneScope instance will be disposed once scene is unloaded.
+> Note that unity does not call OnDestroy deterministically, so the rule of thumb is to not rely on injected dependencies on `OnDestroy` event functions. 
 
 ### Manual Scoping
 ```csharp
@@ -210,36 +210,36 @@ using var scopedContainer = parentContainer.Scope("Scoped", descriptor =>
 ```csharp
 ContainerDescriptor::AddInstance(object instance, params Type[] contracts)
 ```
-Adds an object already contructed by the user to the container as a singleton, everytime the contracts given is asked to be resolved, the same object will be returned.
-If object implements `IDisposable` it will be disposed when its parent Container are disposed.
-Theres no need to pass `IDisposable` as contract to have your object disposed, howerver, if you want to retrieve all `IDisposable` by any API `Single<TContract>`, `Resolve<TContract>` or `All<TContract>` then yes, you have to specify it.
+Adds an object already contructed by the user to the container as a singleton, every time the contracts given are asked to be resolved, the same object will be returned.
+If object implements `IDisposable` it will be disposed when its parent Container is disposed.
+There's no need to pass `IDisposable` as contract to have your object disposed, howerver, if you want to retrieve all `IDisposable` by any API `Single<TContract>`, `Resolve<TContract>` or `All<TContract>` then yes, you have to specify it.
 
 ### AddSingleton
 ```csharp
 ContainerDescriptor::AddSingleton(Type concrete, params Type[] contracts)
 ```
-Adds a defered object creation based on the type to be constructed and its contracts.
-The object will be constructed lazyli, once first request to resolve any of its contracts is called.
+Adds a deferred object creation based on the type to be constructed and its contracts.
+The object will be constructed lazily, once first request to resolve any of its contracts is called.
 Then **same** object will always be returned.
 If you want your singleton to be constructed just after container build (non-lazyli), add `typeof(IStartable)` as one of your contracts.
 If object implements `IDisposable` it will be disposed when its parent Container are disposed.
-Theres no need to pass `IDisposable` as contract to have your object disposed, howerver, if you want to retrieve all `IDisposable` by any API `Single<TContract>`, `Resolve<TContract>` or `All<TContract>` then yes, you have to specify it.
+There's no need to pass `IDisposable` as contract to have your object disposed, howerver, if you want to retrieve all `IDisposable` by any API `Single<TContract>`, `Resolve<TContract>` or `All<TContract>` then yes, you have to specify it.
 
 ### AddTransient
 ```csharp
 ContainerDescriptor::AddTransient(Type concrete, params Type[] contracts)
 ```
-Adds a defered object creation based on the type to be constructed and its contracts.
-The object will be constructed lazyli, once first request to resolve any of its contracts is called.
+Adds a deferred object creation based on the type to be constructed and its contracts.
+The object will be constructed lazily, once first request to resolve any of its contracts is called.
 Then for any request of any contract, a new object will be created, use this carefully.
 If object implements `IDisposable` it will be disposed when its parent Container are disposed.
-Theres no need to pass `IDisposable` as contract to have your object disposed, howerver, if you want to retrieve all `IDisposable` by any API `Single<TContract>`, `Resolve<TContract>` or `All<TContract>` then yes, you have to specify it.
+There's no need to pass `IDisposable` as contract to have your object disposed, howerver, if you want to retrieve all `IDisposable` by any API `Single<TContract>`, `Resolve<TContract>` or `All<TContract>` then yes, you have to specify it.
 > Note that `IStartable` also works for **Transients** but pay attention that any resolve API will create a new instance
 
 ## 🔍 Resolving
 ### Constructor
-If your type is non-mono, and its gonna be created by the container, then the most recommended way to inject dependencies into it its by constructor injection.
-Its simply as just requesting the contracts you need as following example:
+If your type is non-mono, and it's going to be created by the container, then the recommended way to inject dependencies into it, is by constructor injection.
+It's as simple as just requesting the contracts you need as in the following example:
 ```csharp
 private class Foo
 {  
@@ -252,7 +252,7 @@ private class Foo
 }
 ```
 
-> Note that constructor injection relies on `Resolve<TContract>` API, so in case theres theres two objects with `IInputManager` contract, the last one will be injected. 
+> Note that constructor injection relies on `Resolve<TContract>` API, so in case there are two objects with `IInputManager` contract, the last one will be injected. 
 
 ### Attribute
 Attribute injection is the way to go for **MonoBehaviours**.
@@ -272,8 +272,8 @@ class Foo : MonoBehaviour
 ```
 > Note that attribute injection also works on non-mono classes.
 ### Single
-`Container::Single<TContract>` actually validates that theres a single binding implementing given contract, and returns it.
-If theres more than one the following exception will be thrown.
+`Container::Single<TContract>` actually validates that there's a single binding implementing given contract, and returns it.
+If there's more than one the following exception will be thrown.
 ```
 InvalidOperationException: Sequence contains more than one element
 ```
@@ -359,7 +359,7 @@ Currently, logging verbosity is configured in this file, and default value is se
 | VContainer| 257.8KB | 5.1ms  | 1.83x    | 1.75x      |
 
 ## 🚫 Scripting Restrictions
-If you are taking advantage of reflex to inject `IEnumerable<T>` in your constructors **AND** your are building for **IL2CPP**, you will probably get some exceptions like following:
+If you are taking advantage of reflex to inject `IEnumerable<T>` in your constructors **AND** you are building for **IL2CPP**, you will probably get some exceptions like following:
 
 ```
 System.ExecutionEngineException: Attempting to call method 'System.Linq.Enumerable::Cast<ANY-TYPE>' for which no ahead of time (AOT) code was generated.
